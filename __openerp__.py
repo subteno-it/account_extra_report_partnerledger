@@ -19,6 +19,7 @@ This module modify report:
     ],
     'data': [
         'views/report_partnerledger.xml',
+        'wizard/account_report_partner_ledger_view.xml',
     ],
     'demo': [],
     'installable': True,

@@ -22,7 +22,18 @@
 #
 ##############################################################################
 
-import models
-import wizard
+
+from openerp import api, fields, models
+
+
+class AccountPartnerLedger(models.TransientModel):
+    _inherit = "account.report.partner.ledger"
+
+    partner_ids = fields.Many2many(comodel_name='res.partner', string='Partners', domain=['|',('is_company','=',True),('parent_id','=',False)], help='If empty, get all partners')
+
+    @api.multi
+    def pre_print_report(self, data):
+        data['form'].update({'partner_ids': self.partner_ids.mapped('id')})
+        return super(AccountPartnerLedger, self).pre_print_report(data)
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
