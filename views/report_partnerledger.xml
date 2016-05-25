@@ -29,10 +29,10 @@
                     <table class="table table-condensed">
                         <thead>
                             <tr>
-                                <th class="col-xs-2">Date</th>
+                                <th class="col-xs-1">Date</th>
                                 <th class="col-xs-1">JRNL</th>
                                 <th class="col-xs-1">Account</th>
-                                <th class="col-xs-3">Ref</th>
+                                <th class="col-xs-4">Ref</th>
                                 <th class="col-xs-1">Debit</th>
                                 <th class="col-xs-1">Credit</th>
                                 <th class="col-xs-1">Balance</th>
