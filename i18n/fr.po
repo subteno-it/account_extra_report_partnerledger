@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 9.0e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-24 12:53+0000\n"
-"PO-Revision-Date: 2016-05-24 12:53+0000\n"
+"POT-Creation-Date: 2016-06-13 09:22+0000\n"
+"PO-Revision-Date: 2016-06-13 09:22+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,9 +16,79 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.account_extra_report_partnerledger
+msgid "<span style=\"font-style: italic;\">Initial Balance</span>"
+msgstr "<span style=\"font-style: italic;\">Solde initial</span>"
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.account_extra_report_partnerledger
+msgid "<strong>Company:</strong>"
+msgstr "<strong>Société :</strong>"
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.account_extra_report_partnerledger
+msgid "<strong>Date from :</strong>"
+msgstr "<strong>Date du:</strong>"
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.account_extra_report_partnerledger
+msgid "<strong>Date to :</strong>"
+msgstr "<strong>Date au:</strong>"
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.account_extra_report_partnerledger
+msgid "<strong>Target Moves:</strong>"
+msgstr "<strong>Pièces cibles :</strong>"
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.account_extra_report_partnerledger
+msgid "<strong>Totals</strong>"
+msgstr "<strong>Totaux</strong>"
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.account_extra_report_partnerledger
+msgid "Account"
+msgstr "Compte"
+
+#. module: account_extra_report_partnerledger
 #: model:ir.model,name:account_extra_report_partnerledger.model_account_report_partner_ledger
 msgid "Account Partner Ledger"
-msgstr "Account Partner Ledger"
+msgstr "Livre des tiers"
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.account_extra_report_partnerledger
+msgid "All Entries"
+msgstr "Toutes les écritures"
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.account_extra_report_partnerledger
+msgid "All Posted Entries"
+msgstr "Toutes les écritures passées"
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.account_extra_report_partnerledger
+msgid "Balance"
+msgstr "Balance"
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.account_extra_report_partnerledger
+msgid "Credit"
+msgstr "Crédit"
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.account_extra_report_partnerledger
+msgid "Currency"
+msgstr "Devise"
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.account_extra_report_partnerledger
+msgid "Date"
+msgstr "Date"
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.account_extra_report_partnerledger
+msgid "Debit"
+msgstr "Débit"
 
 #. module: account_extra_report_partnerledger
 #: model:ir.model.fields,help:account_extra_report_partnerledger.field_account_report_partner_ledger_partner_ids
@@ -26,16 +96,32 @@ msgid "If empty, get all partners"
 msgstr "Si vide, tous les partenaires ayant des écritures seront pris"
 
 #. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.account_extra_report_partnerledger
+msgid "JRNL"
+msgstr "JRNL"
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.account_extra_report_partnerledger
+msgid "Match."
+msgstr "Let."
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.account_extra_report_partnerledger
+msgid "Partner Ledger"
+msgstr "Livre des tiers"
+
+#. module: account_extra_report_partnerledger
 #: model:ir.model.fields,field_description:account_extra_report_partnerledger.field_account_report_partner_ledger_partner_ids
 msgid "Partners"
 msgstr "Partenaires"
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.account_extra_report_partnerledger
+msgid "Ref"
+msgstr "Réf."
 
 #. module: account_extra_report_partnerledger
 #: model:ir.model,name:account_extra_report_partnerledger.model_report_account_extra_reports_report_partnerledger
 msgid "report.account_extra_reports.report_partnerledger"
 msgstr "report.account_extra_reports.report_partnerledger"
 
-#. module: account_extra_reports
-#: model:ir.ui.view,arch_db:account_extra_reports.report_partnerledger
-msgid "Match."
-msgstr "Let."
