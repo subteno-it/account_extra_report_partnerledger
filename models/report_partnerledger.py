@@ -124,6 +124,8 @@ class ReportPartnerLedger(models.AbstractModel):
             WHERE a.internal_type IN %s
             AND NOT a.deprecated""", (tuple(data['computed']['ACCOUNT_TYPE']),))
         data['computed']['account_ids'] = [a for (a,) in self.env.cr.fetchall()]
+        if data['form']['account_exclude_ids']:
+            data['computed']['account_ids'] = list(set(data['computed']['account_ids']) - set(data['form']['account_exclude_ids']))
         params = [tuple(data['computed']['move_state']), tuple(data['computed']['account_ids'])] + query_get_data[2]
         reconcile_clause = "" if data['form']['reconciled'] else ' AND "account_move_line".reconciled = false '
         query = """

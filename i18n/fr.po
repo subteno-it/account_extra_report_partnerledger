@@ -56,6 +56,11 @@ msgid "Account Partner Ledger"
 msgstr "Livre des tiers"
 
 #. module: account_extra_report_partnerledger
+#: model:ir.model.fields,field_description:account_extra_report_partnerledger.field_account_report_partner_ledger_account_exclude_ids
+msgid "Accounts to exclude"
+msgstr "Comptes à exclure"
+
+#. module: account_extra_report_partnerledger
 #: model:ir.ui.view,arch_db:account_extra_report_partnerledger.account_extra_report_partnerledger
 msgid "All Entries"
 msgstr "Toutes les écritures"
@@ -89,6 +94,11 @@ msgstr "Date"
 #: model:ir.ui.view,arch_db:account_extra_report_partnerledger.account_extra_report_partnerledger
 msgid "Debit"
 msgstr "Débit"
+
+#. module: account_extra_report_partnerledger
+#: model:ir.model.fields,help:account_extra_report_partnerledger.field_account_report_partner_ledger_account_exclude_ids
+msgid "If empty, get all accounts"
+msgstr "Si vide, tous les comptes comptables tiers seront pris"
 
 #. module: account_extra_report_partnerledger
 #: model:ir.model.fields,help:account_extra_report_partnerledger.field_account_report_partner_ledger_partner_ids

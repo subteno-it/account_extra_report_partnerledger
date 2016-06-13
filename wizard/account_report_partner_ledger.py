@@ -30,10 +30,14 @@ class AccountPartnerLedger(models.TransientModel):
     _inherit = "account.report.partner.ledger"
 
     partner_ids = fields.Many2many(comodel_name='res.partner', string='Partners', domain=['|', ('is_company', '=', True), ('parent_id', '=', False)], help='If empty, get all partners')
+    account_exclude_ids = fields.Many2many(comodel_name='account.account', string='Accounts to exclude', domain=[('internal_type', 'in', ('receivable', 'payable'))], help='If empty, get all accounts')
 
     @api.multi
     def pre_print_report(self, data):
-        data['form'].update({'partner_ids': self.partner_ids.mapped('id')})
+        data['form'].update({
+            'partner_ids': self.partner_ids.mapped('id'),
+            'account_exclude_ids': self.account_exclude_ids.mapped('id'),
+        })
         return super(AccountPartnerLedger, self).pre_print_report(data)
 
     # FIXME : find an other solution to pass context instead of rewrite this code

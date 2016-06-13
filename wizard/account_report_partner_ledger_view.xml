@@ -33,6 +33,9 @@
                     <group col="3">
                         <field name="partner_ids" widget="many2many_tags" options="{'no_create': True}"/>
                     </group>
+                    <group col="3">
+                        <field name="account_exclude_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                    </group>
                 </xpath>
             </field>
         </record>
