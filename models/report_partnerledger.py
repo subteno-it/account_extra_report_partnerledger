@@ -157,7 +157,7 @@ class ReportPartnerLedger(models.AbstractModel):
             partner_ids = list(set(partner_move_ids) | set(partner_initial_move_ids))
 
         partners = obj_partner.browse(partner_ids)
-        partners = sorted(partners, key=lambda x: (x.ref, x.name))
+        partners = sorted(partners, key=lambda x: (x.name))
 
         docargs = {
             'doc_ids': partner_ids,

@@ -27,8 +27,7 @@
                                 <tbody>
                                     <tr>
                                         <td colspan="8">
-                                            <strong t-esc="o.ref"/>
-                                            - <strong t-esc="o.name"/>
+                                            <strong t-esc="o.name"/>
                                         </td>
                                     </tr>
                                     <tr>
