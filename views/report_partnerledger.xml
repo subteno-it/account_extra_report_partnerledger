@@ -41,7 +41,7 @@
                                         <th class="col-xs-1 text-right">Balance</th>
                                         <th class="col-xs-1" t-if="amount_currency">Currency</th>
                                     </tr>
-                                    <tr>
+                                    <tr t-if="data['form']['date_from']">
                                         <td colspan="3">
                                         </td>
                                         <td colspan="2">
