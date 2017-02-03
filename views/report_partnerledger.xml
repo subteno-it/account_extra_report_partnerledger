@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
-        <template id="account_extra_report_partnerledger" inherit_id="account_extra_reports.report_partnerledger">
-            <xpath expr="//t[@t-foreach='docs']" position="replace">
+    <template id="report_partnerledger">
+        <t t-call="report.html_container">
+            <t t-set="data_report_margin_top" t-value="12"/>
+            <t t-set="data_report_header_spacing" t-value="9"/>
+            <t t-set="data_report_dpi" t-value="110"/>
+            <t t-foreach="docs" t-as="o">
                 <t t-call="report.internal_layout">
                     <div class="page">
                         <h2>Partner Ledger</h2>
@@ -13,8 +16,12 @@
                                 <p t-esc="res_company.name"/>
                             </div>
                             <div class="col-xs-3">
-                                <t t-if="data['form']['date_from']"><strong>Date from :</strong> <span t-esc="data['form']['date_from']"/><br/></t>
-                                <t t-if="data['form']['date_to']"><strong>Date to :</strong> <span t-esc="data['form']['date_to']"/></t>
+                                <t t-if="data['form']['date_from']">
+                                    <strong>Date from :</strong>
+                                    <span t-esc="data['form']['date_from']"/><br/></t>
+                                <t t-if="data['form']['date_to']">
+                                    <strong>Date to :</strong>
+                                    <span t-esc="data['form']['date_to']"/></t>
                             </div>
                             <div class="col-xs-3">
                                 <strong>Target Moves:</strong>
@@ -42,8 +49,7 @@
                                         <th class="col-xs-1" t-if="amount_currency">Currency</th>
                                     </tr>
                                     <tr t-if="data['form']['date_from']">
-                                        <td colspan="3">
-                                        </td>
+                                        <td colspan="3"></td>
                                         <td colspan="2">
                                             <span style="font-style: italic;">Initial Balance</span>
                                         </td>
@@ -57,8 +63,8 @@
                                             <span style="font-style: italic;" t-esc="initial_balance_partner(data, o, 'debit - credit')" t-esc-options='{"widget": "monetary", "display_currency": "res_company.currency_id"}'/>
                                         </td>
                                     </tr>
-                                    <t t-set="initial_progress" t-value="initial_balance_partner(data, o, 'debit - credit')" />
-                                    <t t-set="progress" t-value="0" />
+                                    <t t-set="initial_progress" t-value="initial_balance_partner(data, o, 'debit - credit')"/>
+                                    <t t-set="progress" t-value="0"/>
                                     <tr t-foreach="lines(data, o)" t-as="line">
                                         <td>
                                             <span t-esc="line['date']"/>
@@ -82,7 +88,7 @@
                                             <span t-esc="line['credit']" t-esc-options='{"widget": "monetary", "display_currency": "res_company.currency_id"}'/>
                                         </td>
                                         <td class="text-right">
-                                            <t t-set="progress" t-value="initial_progress + line['progress']" />
+                                            <t t-set="progress" t-value="initial_progress + line['progress']"/>
                                             <span t-esc="progress" t-esc-options='{"widget": "monetary", "display_currency": "res_company.currency_id"}'/>
                                         </td>
                                         <td t-if="amount_currency">
@@ -90,8 +96,7 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td colspan="3">
-                                        </td>
+                                        <td colspan="3"></td>
                                         <td colspan="2">
                                             <strong>Totals</strong>
                                         </td>
@@ -110,7 +115,7 @@
                         </table>
                     </div>
                 </t>
-            </xpath>
-        </template>
-    </data>
+            </t>
+        </t>
+    </template>
 </odoo>
