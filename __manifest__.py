@@ -12,9 +12,10 @@ This module modify report:
 * Partner Ledger
     """,
     'website': 'www.syleam.com',
-    'depends': [
-    ],
+    'depends': ['account_accountant'
+                ],
     'data': [
+        'data/account_report.xml',
         'views/report_partnerledger.xml',
         'wizard/account_report_partner_ledger_view.xml',
     ],
