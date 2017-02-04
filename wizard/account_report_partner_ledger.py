@@ -31,8 +31,7 @@ class AccountPartnerLedger(models.TransientModel):
     _description = "Account Partner Ledger"
 
     amount_currency = fields.Boolean("With Currency", help="It adds the currency column on report if the currency differs from the company currency.")
-    reconciled = fields.Boolean('Reconciled Entries')
-
+    reconciled = fields.Boolean('With Reconciled Entries')
     partner_ids = fields.Many2many(comodel_name='res.partner', string='Partners', domain=['|', ('is_company', '=', True), ('parent_id', '=', False)], help='If empty, get all partners')
     account_exclude_ids = fields.Many2many(comodel_name='account.account', string='Accounts to exclude', domain=[('internal_type', 'in', ('receivable', 'payable'))], help='If empty, get all accounts')
 
