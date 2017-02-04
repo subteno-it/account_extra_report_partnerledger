@@ -23,11 +23,15 @@
 ##############################################################################
 
 
-from openerp import api, fields, models
-
+from odoo import api, fields, models
 
 class AccountPartnerLedger(models.TransientModel):
-    _inherit = "account.report.partner.ledger"
+    _inherit = "account.common.partner.report"
+    _name = "account.report.partner.ledger"
+    _description = "Account Partner Ledger"
+
+    amount_currency = fields.Boolean("With Currency", help="It adds the currency column on report if the currency differs from the company currency.")
+    reconciled = fields.Boolean('Reconciled Entries')
 
     partner_ids = fields.Many2many(comodel_name='res.partner', string='Partners', domain=['|', ('is_company', '=', True), ('parent_id', '=', False)], help='If empty, get all partners')
     account_exclude_ids = fields.Many2many(comodel_name='account.account', string='Accounts to exclude', domain=[('internal_type', 'in', ('receivable', 'payable'))], help='If empty, get all accounts')
@@ -44,6 +48,6 @@ class AccountPartnerLedger(models.TransientModel):
     def _print_report(self, data):
         data = self.pre_print_report(data)
         data['form'].update({'reconciled': self.reconciled, 'amount_currency': self.amount_currency})
-        return self.env['report'].with_context(landscape=True).get_action(self, 'account_extra_reports.report_partnerledger', data=data)
+        return self.env['report'].with_context(landscape=True).get_action(self, 'account_extra_report_partnerledger.report_partnerledger', data=data)
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
