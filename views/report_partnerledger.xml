@@ -34,7 +34,8 @@
                                         <th class="col-xs-1">Date</th>
                                         <th class="col-xs-1">JRNL</th>
                                         <th class="col-xs-1">Account</th>
-                                        <th class="col-xs-4">Ref</th>
+                                        <th class="col-xs-3">Ref</th>
+                                        <th class="col-xs-1">Date Due</th>
                                         <th class="col-xs-1">Match.</th>
                                         <th class="col-xs-1 text-right">Debit</th>
                                         <th class="col-xs-1 text-right">Credit</th>
@@ -71,6 +72,9 @@
                                         </td>
                                         <td>
                                             <span t-esc="line['displayed_name']"/>
+                                        </td>
+                                        <td>
+                                            <span t-esc="line['date_maturity']"/>
                                         </td>
                                         <td>
                                             <span t-esc="line['matching_number']"/>
