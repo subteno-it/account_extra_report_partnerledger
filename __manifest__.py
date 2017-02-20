@@ -4,13 +4,9 @@
     'name': 'Extra Accounting Report Partner Ledger',
     'version': '1.0',
     'category': 'Accounting & Finance',
-    'description': """
-Extra Accounting Report Partner Ledger.
-====================================
-
-This module modify report:
-* Partner Ledger
-    """,
+    'author': 'SYLEAM',
+    'description': """Extra Accounting Report Partner Ledger""",
+    'summary': 'Extra Accounting Report Partner Ledger',
     'website': 'www.syleam.com',
     'depends': ['account'
                 ],
