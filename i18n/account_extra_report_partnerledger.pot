@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 9.0c\n"
+"Project-Id-Version: Odoo Server 10.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-24 12:52+0000\n"
-"PO-Revision-Date: 2016-05-24 12:52+0000\n"
+"POT-Creation-Date: 2017-02-20 13:25+0000\n"
+"PO-Revision-Date: 2017-02-20 13:25+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,93 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.report_partnerledger
+msgid "<strong>Company:</strong>"
+msgstr ""
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.report_partnerledger
+msgid "<strong>Date from :</strong>"
+msgstr ""
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.report_partnerledger
+msgid "<strong>Date to :</strong>"
+msgstr ""
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.report_partnerledger
+msgid "<strong>Target Moves:</strong>"
+msgstr ""
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.report_partnerledger
+msgid "Account"
+msgstr ""
+
+#. module: account_extra_report_partnerledger
 #: model:ir.model,name:account_extra_report_partnerledger.model_account_report_partner_ledger
 msgid "Account Partner Ledger"
+msgstr ""
+
+#. module: account_extra_report_partnerledger
+#: model:ir.model.fields,field_description:account_extra_report_partnerledger.field_account_report_partner_ledger_account_exclude_ids
+msgid "Accounts to exclude"
+msgstr ""
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.report_partnerledger
+msgid "All Entries"
+msgstr ""
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.report_partnerledger
+msgid "All Posted Entries"
+msgstr ""
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.report_partnerledger
+msgid "Balance"
+msgstr ""
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.report_partnerledger
+msgid "Credit"
+msgstr ""
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.report_partnerledger
+msgid "Currency"
+msgstr ""
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.report_partnerledger
+msgid "Date"
+msgstr ""
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.report_partnerledger
+msgid "Debit"
+msgstr ""
+
+#. module: account_extra_report_partnerledger
+#: model:ir.model.fields,field_description:account_extra_report_partnerledger.field_report_account_extra_report_partnerledger_report_partnerledger_display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.report_partnerledger
+msgid "Due Date"
+msgstr ""
+
+#. module: account_extra_report_partnerledger
+#: model:ir.model.fields,field_description:account_extra_report_partnerledger.field_report_account_extra_report_partnerledger_report_partnerledger_id
+msgid "ID"
+msgstr ""
+
+#. module: account_extra_report_partnerledger
+#: model:ir.model.fields,help:account_extra_report_partnerledger.field_account_report_partner_ledger_account_exclude_ids
+msgid "If empty, get all accounts"
 msgstr ""
 
 #. module: account_extra_report_partnerledger
@@ -26,12 +111,40 @@ msgid "If empty, get all partners"
 msgstr ""
 
 #. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.report_partnerledger
+msgid "JRNL"
+msgstr ""
+
+#. module: account_extra_report_partnerledger
+#: model:ir.model.fields,field_description:account_extra_report_partnerledger.field_report_account_extra_report_partnerledger_report_partnerledger___last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: account_extra_report_partnerledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.report_partnerledger
+msgid "Match."
+msgstr ""
+
+#. module: account_extra_report_partnerledger
+#: model:ir.actions.act_window,name:account_extra_report_partnerledger.action_account_partner_ledger_menu
+#: model:ir.actions.report.xml,name:account_extra_report_partnerledger.action_report_extra_partnerledger
+#: model:ir.ui.menu,name:account_extra_report_partnerledger.menu_partner_ledger
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.report_partnerledger
+msgid "Partner Ledger"
+msgstr ""
+
+#. module: account_extra_report_partnerledger
 #: model:ir.model.fields,field_description:account_extra_report_partnerledger.field_account_report_partner_ledger_partner_ids
 msgid "Partners"
 msgstr ""
 
 #. module: account_extra_report_partnerledger
-#: model:ir.model,name:account_extra_report_partnerledger.model_report_account_extra_reports_report_partnerledger
-msgid "report.account_extra_reports.report_partnerledger"
+#: model:ir.ui.view,arch_db:account_extra_report_partnerledger.report_partnerledger
+msgid "Ref"
+msgstr ""
+
+#. module: account_extra_report_partnerledger
+#: model:ir.model,name:account_extra_report_partnerledger.model_report_account_extra_report_partnerledger_report_partnerledger
+msgid "report.account_extra_report_partnerledger.report_partnerledger"
 msgstr ""
 
