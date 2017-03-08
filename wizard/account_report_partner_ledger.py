@@ -64,9 +64,9 @@ class AccountPartnerLedger(models.TransientModel):
         if not data['form']['reconciled'] and data['form']['rem_futur_reconciled'] and data['form']['date_to']:
             date_to = datetime.strptime(data['form']['date_to'], DEFAULT_SERVER_DATE_FORMAT)
             acc_ful_obj = self.env['account.full.reconcile']
-            in_futur = False
             list_match_in_futur = []
             for full_rec in acc_ful_obj.search([]):
+                in_futur = False
                 for date in full_rec.reconciled_line_ids.mapped('date_maturity'):
                     date_move = datetime.strptime(date, DEFAULT_SERVER_DATE_FORMAT)
                     if date_move > date_to:
