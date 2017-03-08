@@ -59,6 +59,7 @@ class AccountPartnerLedger(models.TransientModel):
     def _compute_reconcile_clause(self, data):
         reconcile_clause = ""
         list_match_in_futur = []
+        
         if not data['form']['reconciled']:
             reconcile_clause = ' AND "account_move_line".reconciled = false '
 
@@ -75,9 +76,9 @@ class AccountPartnerLedger(models.TransientModel):
                         break
                 if in_futur:
                     list_match_in_futur.append(full_rec.id)
-
             if list_match_in_futur:
                 reconcile_clause = """ AND ("account_move_line".reconciled = false OR "account_move_line".full_reconcile_id IN """ + str(tuple(list_match_in_futur)) + """)"""
+
         return reconcile_clause, list_match_in_futur
 
 
