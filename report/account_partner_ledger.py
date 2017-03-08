@@ -35,11 +35,6 @@ class ReportPartnerLedger(models.AbstractModel):
         lang_id = lang._lang_get(lang_code)
         date_format = lang_id.date_format
 
-        date_to = False
-        if data['form']['date_to']:
-            date_to = datetime.strptime(data['form']['date_to'], DEFAULT_SERVER_DATE_FORMAT)
-        acc_ful_obj = self.env['account.full.reconcile']
-
         for r in res:
             r['date'] = datetime.strptime(r['date'], DEFAULT_SERVER_DATE_FORMAT).strftime(date_format)
             r['date_maturity'] = datetime.strptime(r['date_maturity'], DEFAULT_SERVER_DATE_FORMAT).strftime(date_format)
@@ -48,16 +43,8 @@ class ReportPartnerLedger(models.AbstractModel):
                 if r[field_name] not in (None, '', '/')
             )
 
-            if data['form']['rem_futur_reconciled'] and date_to:
-                in_futur = False
-                full_rec = acc_ful_obj.browse(r['matching_number_id'])
-                for date in full_rec.reconciled_line_ids.mapped('date_maturity'):
-                    date_move = datetime.strptime(date, DEFAULT_SERVER_DATE_FORMAT)
-                    if date_move > date_to:
-                        in_futur = True
-                        break
-                if in_futur:
-                    r['matching_number'] = '*'
+            if r['matching_number_id'] in data['matching_in_futur']:
+                r['matching_number'] = '*'
 
             balance += r['debit'] - r['credit']
             r['progress'] = balance
