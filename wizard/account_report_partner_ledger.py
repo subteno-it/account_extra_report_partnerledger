@@ -34,7 +34,7 @@ class AccountPartnerLedger(models.TransientModel):
 
     amount_currency = fields.Boolean("With Currency", help="It adds the currency column on report if the currency differs from the company currency.")
     reconciled = fields.Boolean('With Reconciled Entries')
-    rem_futur_reconciled = fields.Boolean('Without futur matching number', default=True)
+    rem_futur_reconciled = fields.Boolean('Reconciled Entries matched with futur is considered like unreconciled.', default=True, help="Matching number in futur is replace by *.")
     partner_ids = fields.Many2many(comodel_name='res.partner', string='Partners', domain=['|', ('is_company', '=', True), ('parent_id', '=', False)], help='If empty, get all partners')
     account_exclude_ids = fields.Many2many(comodel_name='account.account', string='Accounts to exclude', domain=[('internal_type', 'in', ('receivable', 'payable'))], help='If empty, get all accounts')
 
@@ -59,11 +59,11 @@ class AccountPartnerLedger(models.TransientModel):
     def _compute_reconcile_clause(self, data):
         reconcile_clause = ""
         list_match_in_futur = []
-        
+
         if not data['form']['reconciled']:
             reconcile_clause = ' AND "account_move_line".reconciled = false '
 
-        if not data['form']['reconciled'] and data['form']['rem_futur_reconciled'] and data['form']['date_to']:
+        if data['form']['rem_futur_reconciled'] and data['form']['date_to']:
             date_to = datetime.strptime(data['form']['date_to'], DEFAULT_SERVER_DATE_FORMAT)
             acc_ful_obj = self.env['account.full.reconcile']
 
@@ -76,7 +76,7 @@ class AccountPartnerLedger(models.TransientModel):
                         break
                 if in_futur:
                     list_match_in_futur.append(full_rec.id)
-            if list_match_in_futur:
+            if list_match_in_futur and not data['form']['reconciled']:
                 reconcile_clause = """ AND ("account_move_line".reconciled = false OR "account_move_line".full_reconcile_id IN """ + str(tuple(list_match_in_futur)) + """)"""
 
         return reconcile_clause, list_match_in_futur
