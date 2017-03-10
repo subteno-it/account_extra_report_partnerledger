@@ -24,6 +24,38 @@
                             <p t-if="data['form']['target_move'] == 'posted'">All Posted Entries</p>
                         </div>
                     </div>
+                    <table class="table table-condensed">
+                        <thead>
+                            <tr>
+                                <th class="col-xs-1">Code</th>
+                                <th class="col-xs-1">Name</th>
+                                <th class="col-xs-1">Debit</th>
+                                <th class="col-xs-1">Credit</th>
+                                <th class="col-xs-1">Balance</th>
+                            </tr>
+                        </thead>
+                        <t t-foreach="accounts(data)" t-as="account">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <span t-esc="account['code']"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="account['name']"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="account['debit']" t-esc-options='{"widget": "monetary", "display_currency": res_company.currency_id}'/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="account['credit']" t-esc-options='{"widget": "monetary", "display_currency": res_company.currency_id}'/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="account['balance']" t-esc-options='{"widget": "monetary", "display_currency": res_company.currency_id}'/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </t>
+                    </table>
 
                     <table class="table table-condensed">
                         <thead>
@@ -43,7 +75,7 @@
                         <t t-foreach="docs" t-as="o">
                             <tbody>
                                 <tr>
-                                    <td colspan="4">
+                                    <td colspan="5">
                                         <strong t-esc="o.ref"/>
                                         - <strong t-esc="o.name"/>
                                     </td>

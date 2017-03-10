@@ -40,8 +40,8 @@ class AccountPartnerLedger(models.TransientModel):
 
     @api.multi
     def pre_print_report(self, data):
-        data['form'].update({'partner_ids': self.partner_ids.mapped('id'),
-                             'account_exclude_ids': self.account_exclude_ids.mapped('id'),
+        data['form'].update({'partner_ids': self.partner_ids.ids,
+                             'account_exclude_ids': self.account_exclude_ids.ids,
                              })
         return super(AccountPartnerLedger, self).pre_print_report(data)
 
@@ -52,34 +52,5 @@ class AccountPartnerLedger(models.TransientModel):
                              'rem_futur_reconciled': self.rem_futur_reconciled,
                              'amount_currency': self.amount_currency
                              })
-        data['reconcile_clause'], data['matching_in_futur'] = self._compute_reconcile_clause(data)
-
         return self.env['report'].with_context(landscape=True).get_action(self, 'account_extra_report_partnerledger.report_partnerledger', data=data)
-
-    def _compute_reconcile_clause(self, data):
-        reconcile_clause = ""
-        list_match_in_futur = []
-
-        if not data['form']['reconciled']:
-            reconcile_clause = ' AND "account_move_line".reconciled = false '
-
-        if data['form']['rem_futur_reconciled'] and data['form']['date_to']:
-            date_to = datetime.strptime(data['form']['date_to'], DEFAULT_SERVER_DATE_FORMAT)
-            acc_ful_obj = self.env['account.full.reconcile']
-
-            for full_rec in acc_ful_obj.search([]):
-                in_futur = False
-                for date in full_rec.reconciled_line_ids.mapped('date_maturity'):
-                    date_move = datetime.strptime(date, DEFAULT_SERVER_DATE_FORMAT)
-                    if date_move > date_to:
-                        in_futur = True
-                        break
-                if in_futur:
-                    list_match_in_futur.append(full_rec.id)
-            if list_match_in_futur and not data['form']['reconciled']:
-                reconcile_clause = """ AND ("account_move_line".reconciled = false OR "account_move_line".full_reconcile_id IN """ + str(tuple(list_match_in_futur)) + """)"""
-
-        return reconcile_clause, list_match_in_futur
-
-
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
