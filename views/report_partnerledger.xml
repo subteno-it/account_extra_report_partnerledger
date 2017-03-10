@@ -15,13 +15,18 @@
                             <p t-esc="res_company.name"/>
                         </div>
                         <div class="col-xs-3">
-                            <t t-if="data['form']['date_from']"><strong>Date from :</strong> <span t-esc="data['form']['date_from']"/><br/></t>
+                            <t t-if="data['form']['date_from_init']"><strong>Date from :</strong> <span t-esc="data['form']['date_from_init']"/><br/></t>
                             <t t-if="data['form']['date_to']"><strong>Date to :</strong> <span t-esc="data['form']['date_to']"/></t>
                         </div>
                         <div class="col-xs-3">
                             <strong>Target Moves:</strong>
                             <p t-if="data['form']['target_move'] == 'all'">All Entries</p>
                             <p t-if="data['form']['target_move'] == 'posted'">All Posted Entries</p>
+                        </div>
+                        <div class="col-xs-3">
+                            <strong>Matching:</strong>
+                            <p t-if="data['form']['reconciled']">With Reconciled Entries</p>
+                            <p t-if="data['form']['rem_futur_reconciled']">Reconciled Entries matched with futur is considered like unreconciled.</p>
                         </div>
                     </div>
                     <table class="table table-condensed">
@@ -65,9 +70,9 @@
                                 <th class="col-xs-1">Account</th>
                                 <th class="col-xs-3">Ref</th>
                                 <th class="col-xs-1">Due Date</th>
-                                <th class="col-xs-1">Debit</th>
-                                <th class="col-xs-1">Credit</th>
-                                <th class="col-xs-1">Balance</th>
+                                <th class="col-xs-1 text-right">Debit</th>
+                                <th class="col-xs-1 text-right">Credit</th>
+                                <th class="col-xs-1 text-right">Balance</th>
                                 <th class="col-xs-1" t-if="amount_currency">Currency</th>
                                 <th class="col-xs-1">Match.</th>
                             </tr>
@@ -106,10 +111,10 @@
                                         <span t-esc="line['date_maturity']"/>
                                     </td>
                                     <td class="text-right">
-                                        <span t-esc="line['debit']" t-esc-options='{"widget": "monetary", "display_currency": res_company.currency_id}'/>
+                                        <span t-if="line['s_debit']" t-esc="line['debit']" t-esc-options='{"widget": "monetary", "display_currency": res_company.currency_id}'/>
                                     </td>
                                     <td class="text-right">
-                                        <span t-esc="line['credit']" t-esc-options='{"widget": "monetary", "display_currency": res_company.currency_id}'/>
+                                        <span t-if="line['s_credit']" t-esc="line['credit']" t-esc-options='{"widget": "monetary", "display_currency": res_company.currency_id}'/>
                                     </td>
                                     <td class="text-right">
                                         <span t-esc="line['progress']" t-esc-options='{"widget": "monetary", "display_currency": res_company.currency_id}'/>

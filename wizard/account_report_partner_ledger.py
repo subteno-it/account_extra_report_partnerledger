@@ -37,11 +37,13 @@ class AccountPartnerLedger(models.TransientModel):
     rem_futur_reconciled = fields.Boolean('Reconciled Entries matched with futur is considered like unreconciled.', default=True, help="Matching number in futur is replace by *.")
     partner_ids = fields.Many2many(comodel_name='res.partner', string='Partners', domain=['|', ('is_company', '=', True), ('parent_id', '=', False)], help='If empty, get all partners')
     account_exclude_ids = fields.Many2many(comodel_name='account.account', string='Accounts to exclude', domain=[('internal_type', 'in', ('receivable', 'payable'))], help='If empty, get all accounts')
+    date_from_init = fields.Date('Start Date')
 
     @api.multi
     def pre_print_report(self, data):
         data['form'].update({'partner_ids': self.partner_ids.ids,
                              'account_exclude_ids': self.account_exclude_ids.ids,
+                             'date_from_init': self.date_from_init,
                              })
         return super(AccountPartnerLedger, self).pre_print_report(data)
 
