@@ -259,7 +259,7 @@ class ReportPartnerLedger(models.AbstractModel):
         if not data['form']['reconciled']:
             reconcile_clause = ' AND "account_move_line".reconciled = false '
 
-        # dans le cas où il y a des lettrages dont la date du plus vieux mouvement est
+        # dans le cas où il y a des lettrages dont la date d'un des mouvements est
         # à une date superieure à date_to, on ne peut le considérer comme lettré à date_to
         # du coup on le considère comme non lettré.
         if data['form']['rem_futur_reconciled'] and data['form']['date_to']:
