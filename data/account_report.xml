@@ -10,5 +10,14 @@
             file="account_extra_report_partnerledger.report_partnerledger"
             />
 
+        <report
+            id="report_extra_partnerledger_xlxs"
+            model="account_extra_report_partnerledger.report_partnerledger"
+            string="Partner Ledger"
+            report_type="xlsx"
+            name="account_extra_report_partnerledger.report_partnerledger_xlxs.xlxs"
+            file="account_extra_report_partnerledger.report_partnerledger_xlxs.xlxs"
+            />
+
     </data>
 </odoo>

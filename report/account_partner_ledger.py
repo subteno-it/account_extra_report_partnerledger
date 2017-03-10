@@ -9,19 +9,19 @@ from odoo.tools import DEFAULT_SERVER_DATE_FORMAT
 class ReportPartnerLedger(models.AbstractModel):
     _name = 'report.account_extra_report_partnerledger.report_partnerledger'
 
-    def _generate_sql(self, data, accounts, compute_init=False, with_init_balance=False):
-        if compute_init:
-            reconcile_clause = ''
-            date_to = datetime.strptime(data['form']['date_from_init'], DEFAULT_SERVER_DATE_FORMAT)
-            date_to = date_to - timedelta(days=1)
-            date_to = datetime.strftime(date_to, DEFAULT_SERVER_DATE_FORMAT)
-            date_clause = """ AND "account_move_line"."date" <= """ + "'" + str(date_to) + "'" + """ """
-        else:
-            date_clause = ''
-            if data['form']['date_to_init']:
-                date_clause += """ AND "account_move_line"."date" <= """ + "'" + str(data['form']['date_to_init']) + "'" + """ """
-            if with_init_balance:
-                date_clause += """ AND "account_move_line"."date" >= """ + "'" + str(data['form']['date_from_init']) + "'" + """ """
+    def _generate_sql(self, data, accounts, date_to=False):
+        # if compute_init:
+        #    reconcile_clause = ''
+        #    date_to = datetime.strptime(data['form']['used_context']['date_from'], DEFAULT_SERVER_DATE_FORMAT)
+        #    date_to = date_to - timedelta(days=1)
+        #    date_to = datetime.strftime(date_to, DEFAULT_SERVER_DATE_FORMAT)
+        #    date_clause = """ AND "account_move_line"."date" <= """ + "'" + str(date_to) + "'" + """ """
+        # else:
+        date_clause = ''
+        if date_to:
+            date_clause += ' AND "account_move_line"."date" <= ' + "'" + str(date_to) + "'" + ' '
+        #    if with_init_balance:
+        #        date_clause += """ AND "account_move_line"."date" >= """ + "'" + str(data['form']['used_context']['date_to']) + "'" + """ """
 
         data['form']['used_context']['date_to'] = False
         data['form']['used_context']['date_from'] = False
@@ -36,9 +36,9 @@ class ReportPartnerLedger(models.AbstractModel):
                 partner_ids = "(%s)" % (partner_ids[0])
             else:
                 partner_ids = tuple(partner_ids)
-            partner_clause = ''' AND "account_move_line".partner_id IN ''' + str(partner_ids) + ''' '''
+            partner_clause = ' AND "account_move_line".partner_id IN ' + str(partner_ids) + ' '
         else:
-            partner_clause = ''' AND "account_move_line".partner_id IS NOT NULL '''
+            partner_clause = ' AND "account_move_line".partner_id IS NOT NULL '
 
         query = """
             SELECT "account_move_line".id, "account_move_line".date, "account_move_line".date_maturity, j.code, acc.code as a_code, acc.name as a_name, "account_move_line".ref, m.name as move_name, "account_move_line".name, "account_move_line".debit, "account_move_line".credit, "account_move_line".amount_currency,"account_move_line".currency_id, c.symbol AS currency_code, afr.name as "matching_number", afr_id.id as "matching_number_id", "account_move_line".partner_id, "account_move_line".account_id
@@ -56,98 +56,115 @@ class ReportPartnerLedger(models.AbstractModel):
         self.env.cr.execute(query, tuple(params))
         return self.env.cr.dictfetchall()
 
-    def _generate_data(self, data, accounts):
-        #res = _generate_sql(data, accounts, init_balance=True)
+    def _generate_account_dict(self, accounts):
+        line_account = {}
+        for account in accounts:
+            line_account[account.id] = {
+                'debit': 0.0,
+                'credit': 0.0,
+                'balance': 0.0,
+                'code': account.code,
+                'name': account.name,
+                'active': False,
+            }
+        return line_account
 
+    def _generate_init_balance_lines(self, init_account):
+        init = []
+        for key, value in init_account.items():
+            init_debit = value['init_debit']
+            init_credit = value['init_credit']
+            with_init = True
+            if round(init_debit - init_credit, 4) > 0:
+                init_debit = init_debit - init_credit
+                init_credit = 0
+            elif round(init_debit - init_credit, 4) < 0:
+                init_credit = init_credit - init_debit
+                init_debit = 0
+            else:
+                with_init = False
+            if with_init:
+                init.append({'date': 'Initial balance',
+                             'date_maturity': '',
+                             'debit': init_debit,
+                             'credit': init_credit,
+                             'code': '',
+                             'a_code': value['a_code'],
+                             'account_id': key,
+                             'displayed_name': '',
+                             'progress': 0.0,
+                             'amount_currency': 0.0,
+                             'matching_number': '',
+                             'report': True})
+        return init
+
+    def _generate_data(self, data, accounts):
         lang_code = self.env.context.get('lang') or 'en_US'
         lang = self.env['res.lang']
         lang_id = lang._lang_get(lang_code)
         date_format = lang_id.date_format
 
+        with_init_balance = data['form']['with_init_balance']
+        date_from = data['form']['used_context']['date_from']
+        date_to = data['form']['used_context']['date_to']
+        date_from_dt = datetime.strptime(date_from, DEFAULT_SERVER_DATE_FORMAT) if date_from else False
+        date_to_dt = datetime.strptime(date_to, DEFAULT_SERVER_DATE_FORMAT) if date_to else False
+
+        res = self._generate_sql(data, accounts, date_to=date_to)
+
         line_partner = {}
         partner_ids = []
+        for line in res:
+            if line['partner_id'] in line_partner.keys():
+                line_partner[line['partner_id']]['lines'].append(line)
+            else:
+                line_partner.update({line['partner_id']: {'lines': [line],
+                                                          'new_lines': [], }})
 
-        data['form']['date_to_init'] = data['form']['used_context']['date_to']
-        with_init_balance = True if data['form']['date_from_init'] else False
+        line_account = self._generate_account_dict(accounts)
 
-        for compute_init in [True, False] if with_init_balance else [False, ]:
+        for partner, value in line_partner.items():
+            init_account = {}
+            new_list = []
+            for r in value['lines']:
+                date_move_dt = datetime.strptime(r['date'], DEFAULT_SERVER_DATE_FORMAT)
 
-            res = self._generate_sql(data, accounts, compute_init=compute_init, with_init_balance=with_init_balance)
-            for line in res:
-                line['compute_init'] = compute_init
-                if line['partner_id'] in line_partner.keys():
-                    line_partner[line['partner_id']]['lines'].append(line)
-                else:
-                    line_partner.update({line['partner_id']: {'lines': [line],
-                                                              'new_lines': [], }})
+                move_matching = True if r['matching_number_id'] else False
+                move_matching_in_futur = False
+                if r['matching_number_id'] in data['matching_in_futur']:
+                    move_matching = False
+                    move_matching_in_futur = True
 
-            line_account = {}
-            for account in accounts:
-                line_account[account.id] = {
-                    'debit': 0.0,
-                    'credit': 0.0,
-                    'balance': 0.0,
-                    'code': account.code,
-                    'name': account.name,
-                    'active': False,
-                }
-
-            for partner, value in line_partner.items():
-                init_account = {}
-                new_list = []
-                for r in value['lines']:
-                    if r['compute_init']:  # date_from and date_move < date_from:
-                        if r['account_id'] in init_account.keys():
-                            init_account[r['account_id']]['init_debit'] += r['debit']
-                            init_account[r['account_id']]['init_credit'] += r['credit']
-                        else:
-                            init_account[r['account_id']] = {'init_debit': r['debit'],
-                                                             'init_credit': r['credit'],
-                                                             'a_code': r['a_code'], }
+                if with_init_balance and date_from_dt and date_move_dt < date_from_dt and move_matching:
+                    if r['account_id'] in init_account.keys():
+                        init_account[r['account_id']]['init_debit'] += r['debit']
+                        init_account[r['account_id']]['init_credit'] += r['credit']
                     else:
-                        date_move = datetime.strptime(r['date'], DEFAULT_SERVER_DATE_FORMAT)
-                        r['date'] = date_move.strftime(date_format)
-                        r['date_maturity'] = datetime.strptime(r['date_maturity'], DEFAULT_SERVER_DATE_FORMAT).strftime(date_format)
-                        r['displayed_name'] = '-'.join(
-                            r[field_name] for field_name in ('move_name', 'ref', 'name')
-                            if r[field_name] not in (None, '', '/')
-                        )
-                        if r['matching_number_id'] in data['matching_in_futur']:
-                            r['matching_number'] = '*'
-                        new_list.append(r)
-
-                if compute_init:
-                    init = []
-                    for key, value in init_account.items():
-                        init_debit = value['init_debit']
-                        init_credit = value['init_credit']
-                        with_init = True
-                        if round(init_debit - init_credit, 4) > 0:
-                            init_debit = init_debit - init_credit
-                            init_credit = 0
-                        elif round(init_debit - init_credit, 4) < 0:
-                            init_credit = init_credit - init_debit
-                            init_debit = 0
-                        else:
-                            with_init = False
-
-                        if with_init:
-                            init.append({'date': 'Initial balance',
-                                         'date_maturity': '',
-                                         'debit': init_debit,
-                                         'credit': init_credit,
-                                         'code': '',
-                                         'a_code': value['a_code'],
-                                         'account_id': key,
-                                         'displayed_name': '',
-                                         'progress': 0.0,
-                                         'amount_currency': 0.0,
-                                         'matching_number': ''})
-                    print('init', init)
-                    line_partner[partner]['new_lines'] += init
+                        init_account[r['account_id']] = {'init_debit': r['debit'],
+                                                         'init_credit': r['credit'],
+                                                         'a_code': r['a_code'], }
                 else:
-                    line_partner[partner]['new_lines'] += new_list
+                    date_move = datetime.strptime(r['date'], DEFAULT_SERVER_DATE_FORMAT)
+                    r['date'] = date_move.strftime(date_format)
+                    r['date_maturity'] = datetime.strptime(r['date_maturity'], DEFAULT_SERVER_DATE_FORMAT).strftime(date_format)
+                    r['displayed_name'] = '-'.join(
+                        r[field_name] for field_name in ('move_name', 'ref', 'name')
+                        if r[field_name] not in (None, '', '/')
+                    )
+                    if move_matching_in_futur:
+                        r['matching_number'] = '*'
 
+                    r['report'] = False
+                    if date_from_dt and date_move_dt < date_from_dt:
+                        r['report'] = True
+
+                    new_list.append(r)
+
+            init_balance_lines = self._generate_init_balance_lines(init_account)
+
+            line_partner[partner]['new_lines'] = init_balance_lines + new_list
+
+        # remove unused partner
         for partner, value in line_partner.items():
             if not value['new_lines']:
                 del line_partner[partner]
@@ -175,6 +192,7 @@ class ReportPartnerLedger(models.AbstractModel):
             line_partner[partner]['credit'] = sum_credit
             partner_ids.append(partner)
 
+        # remove unused account
         for key, value in line_account.items():
             if value['active'] == False:
                 del line_account[key]
@@ -253,6 +271,10 @@ class ReportPartnerLedger(models.AbstractModel):
                 if in_futur:
                     list_match_in_futur.append(full_rec.id)
             if list_match_in_futur and not data['form']['reconciled']:
-                reconcile_clause = """ AND ("account_move_line".full_reconcile_id IS NULL OR "account_move_line".full_reconcile_id IN """ + str(tuple(list_match_in_futur)) + """)"""
+                if len(list_match_in_futur) == 1:
+                    list_match_in_futur_sql = "(%s)" %(list_match_in_futur[0])
+                else:
+                    list_match_in_futur_sql = str(tuple(list_match_in_futur))
+                reconcile_clause = ' AND ("account_move_line".full_reconcile_id IS NULL OR "account_move_line".full_reconcile_id IN ' + list_match_in_futur_sql + ')'
 
         return reconcile_clause, list_match_in_futur

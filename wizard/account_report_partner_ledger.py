@@ -34,16 +34,32 @@ class AccountPartnerLedger(models.TransientModel):
 
     amount_currency = fields.Boolean("With Currency", help="It adds the currency column on report if the currency differs from the company currency.")
     reconciled = fields.Boolean('With Reconciled Entries')
-    rem_futur_reconciled = fields.Boolean('Reconciled Entries matched with futur is considered like unreconciled.', default=True, help="Matching number in futur is replace by *.")
+    rem_futur_reconciled = fields.Boolean('Reconciled Entries at End Date.', default=False, help="Reconciled Entries matched with futur is considered like unreconciled. Matching number in futur is replace by *.")
     partner_ids = fields.Many2many(comodel_name='res.partner', string='Partners', domain=['|', ('is_company', '=', True), ('parent_id', '=', False)], help='If empty, get all partners')
     account_exclude_ids = fields.Many2many(comodel_name='account.account', string='Accounts to exclude', domain=[('internal_type', 'in', ('receivable', 'payable'))], help='If empty, get all accounts')
-    date_from_init = fields.Date('Start Date')
+    with_init_balance = fields.Boolean('With Initial Balance at Start Date', default=False)
+
+    @api.onchange('date_to')
+    def onchange_date_to(self):
+        if self.date_to == False:
+            self.rem_futur_reconciled = False
+        else:
+            self.rem_futur_reconciled = True
+
+    @api.onchange('date_from')
+    def onchange_date_from(self):
+        if self.date_from == False:
+            self.with_init_balance = False
+
+    @api.onchange('reconciled')
+    def onchange_reconciled(self):
+        if self.reconciled == False:
+            self.with_init_balance = False
 
     @api.multi
     def pre_print_report(self, data):
         data['form'].update({'partner_ids': self.partner_ids.ids,
                              'account_exclude_ids': self.account_exclude_ids.ids,
-                             'date_from_init': self.date_from_init,
                              })
         return super(AccountPartnerLedger, self).pre_print_report(data)
 
@@ -52,7 +68,8 @@ class AccountPartnerLedger(models.TransientModel):
         data = self.pre_print_report(data)
         data['form'].update({'reconciled': self.reconciled,
                              'rem_futur_reconciled': self.rem_futur_reconciled,
-                             'amount_currency': self.amount_currency
+                             'with_init_balance': self.with_init_balance,
+                             'amount_currency': self.amount_currency,
                              })
         return self.env['report'].with_context(landscape=True).get_action(self, 'account_extra_report_partnerledger.report_partnerledger', data=data)
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

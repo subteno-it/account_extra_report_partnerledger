@@ -15,8 +15,9 @@
                             <p t-esc="res_company.name"/>
                         </div>
                         <div class="col-xs-3">
-                            <t t-if="data['form']['date_from_init']"><strong>Date from :</strong> <span t-esc="data['form']['date_from_init']"/><br/></t>
+                            <t t-if="data['form']['date_from']"><strong>Date from :</strong> <span t-esc="data['form']['date_from']"/><br/></t>
                             <t t-if="data['form']['date_to']"><strong>Date to :</strong> <span t-esc="data['form']['date_to']"/></t>
+                            <p t-if="data['form']['with_init_balance']">With Initial Balance.</p>
                         </div>
                         <div class="col-xs-3">
                             <strong>Target Moves:</strong>
@@ -26,7 +27,7 @@
                         <div class="col-xs-3">
                             <strong>Matching:</strong>
                             <p t-if="data['form']['reconciled']">With Reconciled Entries</p>
-                            <p t-if="data['form']['rem_futur_reconciled']">Reconciled Entries matched with futur is considered like unreconciled.</p>
+                            <p t-if="data['form']['rem_futur_reconciled']">Reconciled Entries at End Date.</p>
                         </div>
                     </div>
                     <table class="table table-condensed">
@@ -95,10 +96,16 @@
                                     </td>
                                 </tr>
                                 <tr t-foreach="lines(data, o)" t-as="line">
-                                    <td>
+                                    <td t-if="line['report'] == True">
+                                        <i><span t-esc="line['date']"/></i>
+                                    </td>
+                                    <td t-if="line['report'] == False">
                                         <span t-esc="line['date']"/>
                                     </td>
-                                    <td>
+                                    <td t-if="line['report'] == True">
+                                        <i><span t-esc="line['code']"/></i>
+                                    </td>
+                                    <td t-if="line['report'] == False">
                                         <span t-esc="line['code']"/>
                                     </td>
                                     <td>
