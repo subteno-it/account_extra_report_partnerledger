@@ -10,9 +10,6 @@ class ReportPartnerLedger(models.AbstractModel):
     _name = 'report.account_extra_report_partnerledger.report_partnerledger'
 
     def _generate_sql(self, data, accounts, compute_init=False, with_init_balance=False):
-        #data = data.copy()
-        print('date_to', data['form']['date_from_init'], data['form']['date_to_init'])
-
         if compute_init:
             reconcile_clause = ''
             date_to = datetime.strptime(data['form']['date_from_init'], DEFAULT_SERVER_DATE_FORMAT)
@@ -20,20 +17,16 @@ class ReportPartnerLedger(models.AbstractModel):
             date_to = datetime.strftime(date_to, DEFAULT_SERVER_DATE_FORMAT)
             date_clause = """ AND "account_move_line"."date" <= """ + "'" + str(date_to) + "'" + """ """
         else:
-            date_clause = """ AND "account_move_line"."date" <= """ + "'" + str(data['form']['date_to_init']) + "'" + """ """
+            date_clause = ''
+            if data['form']['date_to_init']:
+                date_clause += """ AND "account_move_line"."date" <= """ + "'" + str(data['form']['date_to_init']) + "'" + """ """
             if with_init_balance:
                 date_clause += """ AND "account_move_line"."date" >= """ + "'" + str(data['form']['date_from_init']) + "'" + """ """
-
-            #= data['form']['date_from_init']
-        #print(init_balance, 'date_from', 'date_to', data['form']['date_from'], data['form']['date_to'],)
-
 
         data['form']['used_context']['date_to'] = False
         data['form']['used_context']['date_from'] = False
 
-        print("!!!!!!!!!!!!!", data['form'].get('used_context', {}))
         query_get_data = self.env['account.move.line'].with_context(data['form'].get('used_context', {}))._query_get()
-        print("////////",query_get_data)
         reconcile_clause = data['reconcile_clause']
         params = [tuple(data['computed']['move_state']), tuple(accounts.ids)] + query_get_data[2]
 
@@ -60,7 +53,6 @@ class ReportPartnerLedger(models.AbstractModel):
                 m.state IN %s
                 AND "account_move_line".account_id IN %s AND """ + query_get_data[1] + reconcile_clause + partner_clause + date_clause + """
                 ORDER BY "account_move_line".date"""
-        print(query, params)
         self.env.cr.execute(query, tuple(params))
         return self.env.cr.dictfetchall()
 
@@ -75,18 +67,12 @@ class ReportPartnerLedger(models.AbstractModel):
         line_partner = {}
         partner_ids = []
 
-        #save_date_to = data['form']['used_context']['date_to']
         data['form']['date_to_init'] = data['form']['used_context']['date_to']
         with_init_balance = True if data['form']['date_from_init'] else False
 
         for compute_init in [True, False] if with_init_balance else [False, ]:
-            #if not init_balance:
-            #    data['form']['date_to'] = save_date_to
 
             res = self._generate_sql(data, accounts, compute_init=compute_init, with_init_balance=with_init_balance)
-            #print("##################")
-            #print(res)
-            #print("##################")
             for line in res:
                 line['compute_init'] = compute_init
                 if line['partner_id'] in line_partner.keys():
@@ -106,17 +92,10 @@ class ReportPartnerLedger(models.AbstractModel):
                     'active': False,
                 }
 
-            #date_from = False
-            # if data['form'].get('date_from_init'):
-            #    date_from = datetime.strptime(data['form']['date_from_init'], DEFAULT_SERVER_DATE_FORMAT)
-
-
-            #new_line_partner = {}
             for partner, value in line_partner.items():
                 init_account = {}
                 new_list = []
                 for r in value['lines']:
-                    #print(init_balance)
                     if r['compute_init']:  # date_from and date_move < date_from:
                         if r['account_id'] in init_account.keys():
                             init_account[r['account_id']]['init_debit'] += r['debit']
@@ -167,11 +146,7 @@ class ReportPartnerLedger(models.AbstractModel):
                     print('init', init)
                     line_partner[partner]['new_lines'] += init
                 else:
-                    #print('add new list', partner)
                     line_partner[partner]['new_lines'] += new_list
-
-            #line_partner = new_line_partner.copy()
-        #print(line_partner)
 
         for partner, value in line_partner.items():
             if not value['new_lines']:
