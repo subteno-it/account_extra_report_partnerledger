@@ -78,7 +78,7 @@
                             </tr>
                         </thead>
                         <t t-foreach="docs" t-as="o">
-                            <tbody style="border-bottom: 1px solid; padding: 1px; tr:nth-child(even){background-color: #f2f2f2}">
+                            <tbody style="border-bottom: 1px solid;">
                                 <tr style="border-bottom: 1px solid #ddd;">
                                     <td colspan="5" t-if="o.ref != False">
                                         <strong t-esc="o.ref"/>
