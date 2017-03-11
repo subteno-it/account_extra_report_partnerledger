@@ -8,8 +8,7 @@
     'description': """Extra Accounting Report Partner Ledger""",
     'summary': 'Extra Accounting Report Partner Ledger',
     'website': 'www.syleam.com',
-    'depends': ['account'
-                ],
+    'depends': ['account'],
     'data': [
         'data/account_report.xml',
         'views/report_partnerledger.xml',

@@ -87,8 +87,24 @@ class ReportPartnerLedger(models.AbstractModel):
                              'progress': 0.0,
                              'amount_currency': 0.0,
                              'matching_number': '',
-                             'report': True})
+                             'type_line': 'init'})
         return init
+
+    def _generate_total(self, sum_debit, sum_credit):
+        return {'date': 'Total',
+                     'date_maturity': '',
+                     'debit': sum_debit,
+                     'credit': sum_credit,
+                     's_debit': True if round(sum_debit, 4) else False,
+                     's_credit': True if round(sum_credit, 4) else False,
+                     'code': '',
+                     'a_code': '',
+                     'account_id': '',
+                     'displayed_name': '',
+                     'progress': sum_debit - sum_credit,
+                     'amount_currency': 0.0,
+                     'matching_number': '',
+                     'type_line': 'total',}
 
     def _generate_data(self, data, accounts):
         lang_code = self.env.context.get('lang') or 'en_US'
@@ -150,9 +166,9 @@ class ReportPartnerLedger(models.AbstractModel):
                     if move_matching_in_futur:
                         r['matching_number'] = '*'
 
-                    r['report'] = False
+                    r['type_line'] = 'normal'
                     if date_from_dt and date_move_dt < date_from_dt:
-                        r['report'] = True
+                        r['type_line'] = 'init'
 
                     new_list.append(r)
 
@@ -185,9 +201,13 @@ class ReportPartnerLedger(models.AbstractModel):
                 line_account[r['account_id']]['active'] = True
                 line_account[r['account_id']]['balance'] += r['debit'] - r['credit']
 
+            if data['form']['sum_partner_bottom']:
+                line_partner[partner]['new_lines'].append(self._generate_total(sum_debit, sum_credit))
+
             line_partner[partner]['debit - credit'] = sum_debit - sum_credit
             line_partner[partner]['debit'] = sum_debit
             line_partner[partner]['credit'] = sum_credit
+
             partner_ids.append(partner)
 
         # remove unused account

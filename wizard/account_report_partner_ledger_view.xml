@@ -14,13 +14,13 @@
                         <field name="amount_currency" groups="base.group_multi_currency"/>
                     </group>
                     <group col="2">
-                      <group>
-                        <field name="date_from"/>
-                        <field name="with_init_balance" attrs="{'readonly': ['|', ('reconciled', '=', False), ('date_from', '=', False)]}"/>
+                        <group>
+                            <field name="date_from"/>
+                            <field name="with_init_balance" attrs="{'readonly': ['|', ('reconciled', '=', False), ('date_from', '=', False)]}"/>
                         </group>
-                      <group>
-                        <field name="date_to"/>
-                        <field name="rem_futur_reconciled" attrs="{'readonly': [('date_to', '=', False)]}"/>
+                        <group>
+                            <field name="date_to"/>
+                            <field name="rem_futur_reconciled" attrs="{'readonly': [('date_to', '=', False)]}"/>
                         </group>
                     </group>
                     <group>
@@ -32,9 +32,12 @@
                     <group col="3">
                         <field name="account_exclude_ids" widget="many2many_tags" options="{'no_create': True}"/>
                     </group>
+                    <group col="4">
+                        <field name="sum_partner_top"/>
+                        <field name="sum_partner_bottom"/>
+                    </group>
                     <footer>
                         <button name="check_report" string="Print" type="object" default_focus="1" class="oe_highlight"/>
-                        or
                         <button string="Cancel" class="oe_link" special="cancel"/>
                     </footer>
                 </form>
