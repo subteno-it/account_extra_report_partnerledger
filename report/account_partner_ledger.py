@@ -106,11 +106,7 @@ class ReportPartnerLedger(models.AbstractModel):
                      'matching_number': '',
                      'type_line': 'total',}
 
-    def _generate_data(self, data, accounts):
-        lang_code = self.env.context.get('lang') or 'en_US'
-        lang = self.env['res.lang']
-        lang_id = lang._lang_get(lang_code)
-        date_format = lang_id.date_format
+    def _generate_data(self, data, accounts, date_format):
 
         with_init_balance = data['form']['with_init_balance']
         date_from = data['form']['used_context']['date_from']
@@ -230,6 +226,11 @@ class ReportPartnerLedger(models.AbstractModel):
 
     @api.multi
     def render_html(self, docis, data):
+        lang_code = self.env.context.get('lang') or 'en_US'
+        lang = self.env['res.lang']
+        lang_id = lang._lang_get(lang_code)
+        date_format = lang_id.date_format
+
         data['reconcile_clause'], data['matching_in_futur'] = self._compute_reconcile_clause(data)
 
         data['computed'] = {}
@@ -240,10 +241,13 @@ class ReportPartnerLedger(models.AbstractModel):
         accounts = self._search_account(data)
         obj_partner = self.env['res.partner']
 
-        data['line_partner'], data['line_account'], partner_ids = self._generate_data(data, accounts)
+        data['line_partner'], data['line_account'], partner_ids = self._generate_data(data, accounts, date_format)
 
         partners = obj_partner.browse(partner_ids)
         partners = sorted(partners, key=lambda x: (x.ref, x.name))
+
+        data['form']['date_from'] = datetime.strptime(data['form']['date_from'], DEFAULT_SERVER_DATE_FORMAT).strftime(date_format) if data['form']['date_from'] else False
+        data['form']['date_to'] = datetime.strptime(data['form']['date_to'], DEFAULT_SERVER_DATE_FORMAT).strftime(date_format) if data['form']['date_to'] else False
 
         docargs = {
             'doc_ids': partner_ids,
