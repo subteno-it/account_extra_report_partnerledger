@@ -15,7 +15,7 @@ class ReportPartnerLedger(models.AbstractModel):
         if date_to:
             date_clause += ' AND "account_move_line"."date" <= ' + "'" + str(date_to) + "'" + ' '
 
-        # on efface les dates sinon cela est pris en compte dans la requête SQL
+        # clear used_context date if not it is use during the sql query
         data['form']['used_context']['date_to'] = False
         data['form']['used_context']['date_from'] = False
 
@@ -115,7 +115,8 @@ class ReportPartnerLedger(models.AbstractModel):
 
         line_partner = {}
         partner_ids = []
-        # renagement par partner
+
+        # ordered by partner
         for line in res:
             if line['partner_id'] in line_partner.keys():
                 line_partner[line['partner_id']]['lines'].append(line)
@@ -137,8 +138,8 @@ class ReportPartnerLedger(models.AbstractModel):
                     move_matching = False
                     move_matching_in_futur = True
 
-                # on ne met dans la balance initiale que les mouvements non lettrées
-                # et a une date inféreieure à date_from
+                # add in initiale balance only the reconciled entries a
+                # and with a date less than date_from
                 if with_init_balance and date_from_dt and date_move_dt < date_from_dt and move_matching:
                     if r['account_id'] in init_account.keys():
                         init_account[r['account_id']]['init_debit'] += r['debit']
@@ -156,6 +157,7 @@ class ReportPartnerLedger(models.AbstractModel):
                         r[field_name] for field_name in ('move_name', 'ref', 'name')
                         if r[field_name] not in (None, '', '/')
                     )
+                    # if move is matching with the future then replace matching number par *
                     if move_matching_in_futur:
                         r['matching_number'] = '*'
 
@@ -174,8 +176,8 @@ class ReportPartnerLedger(models.AbstractModel):
             if not value['new_lines']:
                 del line_partner[partner]
 
-        # calcul des sommes par partner
-        # calcul des sommes par compte
+        # compute sum by partner
+        # compute sum by account
         for partner, value in line_partner.items():
             balance = 0.0
             sum_debit = 0.0
@@ -285,9 +287,9 @@ class ReportPartnerLedger(models.AbstractModel):
         if not data['form']['reconciled']:
             reconcile_clause = ' AND "account_move_line".reconciled = false '
 
-        # dans le cas où il y a des lettrages dont la date d'un des mouvements est
-        # à une date superieure à date_to, on ne peut le considérer comme lettré à date_to
-        # du coup on le considère comme non lettré.
+        # when an entrie a matching number and this matching number is linked with
+        # entries witch the date is gretter than date_to, else
+        # the entrie is considered like unreconciled.
         if data['form']['rem_futur_reconciled'] and data['form']['date_to']:
             date_to = datetime.strptime(data['form']['date_to'], DEFAULT_SERVER_DATE_FORMAT)
             acc_ful_obj = self.env['account.full.reconcile']
