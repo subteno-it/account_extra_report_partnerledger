@@ -3,6 +3,7 @@
 from datetime import datetime, timedelta
 import time
 from odoo import api, models
+from odoo.tools import float_is_zero, float_compare
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT
 
 
@@ -62,20 +63,12 @@ class ReportPartnerLedger(models.AbstractModel):
         return line_account
 
     def _generate_init_balance_lines(self, init_account):
+        rounding = self.env.user.company_id.currency_id.rounding or 0.01
         init = []
         for key, value in init_account.items():
             init_debit = value['init_debit']
             init_credit = value['init_credit']
-            with_init = True
-            if round(init_debit - init_credit, 4) > 0:
-                init_debit = init_debit - init_credit
-                init_credit = 0
-            elif round(init_debit - init_credit, 4) < 0:
-                init_credit = init_credit - init_debit
-                init_debit = 0
-            else:
-                with_init = False
-            if with_init:
+            if not float_is_zero(init_debit, rounding) or not float_is_zero(init_credit, rounding):
                 init.append({'date': 'Initial balance',
                              'date_maturity': '',
                              'debit': init_debit,
@@ -91,12 +84,13 @@ class ReportPartnerLedger(models.AbstractModel):
         return init
 
     def _generate_total(self, sum_debit, sum_credit):
+        rounding = self.env.user.company_id.currency_id.rounding or 0.01
         return {'date': 'Total',
                      'date_maturity': '',
                      'debit': sum_debit,
                      'credit': sum_credit,
-                     's_debit': True if round(sum_debit, 4) else False,
-                     's_credit': True if round(sum_credit, 4) else False,
+                     's_debit': False if float_is_zero(sum_debit, rounding) else True,
+                     's_credit': False if float_is_zero(sum_credit, rounding) else True,
                      'code': '',
                      'a_code': '',
                      'account_id': '',
@@ -107,7 +101,7 @@ class ReportPartnerLedger(models.AbstractModel):
                      'type_line': 'total',}
 
     def _generate_data(self, data, accounts, date_format):
-
+        rounding = self.env.user.company_id.currency_id.rounding or 0.01
         with_init_balance = data['form']['with_init_balance']
         date_from = data['form']['used_context']['date_from']
         date_to = data['form']['used_context']['date_to']
@@ -189,8 +183,8 @@ class ReportPartnerLedger(models.AbstractModel):
                 sum_debit += r['debit']
                 sum_credit += r['credit']
 
-                r['s_debit'] = True if round(r['debit'], 4) else False
-                r['s_credit'] = True if round(r['credit'], 4) else False
+                r['s_debit'] = False if float_is_zero(r['debit'], rounding) else True
+                r['s_credit'] = False if float_is_zero(r['credit'], rounding) else True
 
                 line_account[r['account_id']]['debit'] += r['debit']
                 line_account[r['account_id']]['credit'] += r['credit']
@@ -227,9 +221,7 @@ class ReportPartnerLedger(models.AbstractModel):
     @api.multi
     def render_html(self, docis, data):
         lang_code = self.env.context.get('lang') or 'en_US'
-        lang = self.env['res.lang']
-        lang_id = lang._lang_get(lang_code)
-        date_format = lang_id.date_format
+        date_format  = self.env['res.lang']._lang_get(lang_code).date_format
 
         data['reconcile_clause'], data['matching_in_futur'] = self._compute_reconcile_clause(data)
 
