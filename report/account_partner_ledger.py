@@ -68,6 +68,9 @@ class ReportPartnerLedger(models.AbstractModel):
         for key, value in init_account.items():
             init_debit = value['init_debit']
             init_credit = value['init_credit']
+            balance = init_debit - init_credit
+            if float_is_zero(balance, rounding):
+                balance = 0.0
             if not float_is_zero(init_debit, rounding) or not float_is_zero(init_credit, rounding):
                 init.append({'date': 'Initial balance',
                              'date_maturity': '',
@@ -77,13 +80,13 @@ class ReportPartnerLedger(models.AbstractModel):
                              'a_code': value['a_code'],
                              'account_id': key,
                              'displayed_name': '',
-                             'progress': 0.0,
+                             'progress': balance,
                              'amount_currency': 0.0,
                              'matching_number': '',
                              'type_line': 'init'})
         return init
 
-    def _generate_total(self, sum_debit, sum_credit):
+    def _generate_total(self, sum_debit, sum_credit, balance):
         rounding = self.env.user.company_id.currency_id.rounding or 0.01
         return {'date': 'Total',
                      'date_maturity': '',
@@ -95,7 +98,7 @@ class ReportPartnerLedger(models.AbstractModel):
                      'a_code': '',
                      'account_id': '',
                      'displayed_name': '',
-                     'progress': sum_debit - sum_credit,
+                     'progress': balance,
                      'amount_currency': 0.0,
                      'matching_number': '',
                      'type_line': 'total',}
@@ -180,6 +183,9 @@ class ReportPartnerLedger(models.AbstractModel):
             for r in value['new_lines']:
                 balance += r['debit'] - r['credit']
                 r['progress'] = balance
+                if float_is_zero(balance, rounding):
+                    r['progress'] = 0.0
+
                 sum_debit += r['debit']
                 sum_credit += r['credit']
 
@@ -191,10 +197,14 @@ class ReportPartnerLedger(models.AbstractModel):
                 line_account[r['account_id']]['active'] = True
                 line_account[r['account_id']]['balance'] += r['debit'] - r['credit']
 
-            if data['form']['sum_partner_bottom']:
-                line_partner[partner]['new_lines'].append(self._generate_total(sum_debit, sum_credit))
+            balance = sum_debit - sum_credit
+            if float_is_zero(balance, rounding):
+                balance = 0.0
 
-            line_partner[partner]['debit - credit'] = sum_debit - sum_credit
+            if data['form']['sum_partner_bottom']:
+                line_partner[partner]['new_lines'].append(self._generate_total(sum_debit, sum_credit, balance))
+
+            line_partner[partner]['debit - credit'] = balance
             line_partner[partner]['debit'] = sum_debit
             line_partner[partner]['credit'] = sum_credit
 
