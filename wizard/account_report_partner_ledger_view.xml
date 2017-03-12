@@ -14,6 +14,9 @@
                         <field name="amount_currency" groups="base.group_multi_currency"/>
                     </group>
                     <group col="2">
+                        <field name="periode_date" widget="selection"/>
+                    </group>
+                    <group col="2">
                         <group>
                             <field name="date_from"/>
                             <field name="with_init_balance" attrs="{'readonly': ['|', ('reconciled', '=', False), ('date_from', '=', False)]}"/>

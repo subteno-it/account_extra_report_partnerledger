@@ -22,9 +22,16 @@
 #
 ##############################################################################
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from odoo import api, fields, models
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT
+
+class AccountPartnerLedgerPeriode(models.TransientModel):
+    _name = 'account.report.partner.ledger.periode'
+
+    name = fields.Char('Name')
+    date_from = fields.Datetime('Date from')
+    date_to = fields.Datetime('Date to')
 
 
 class AccountPartnerLedger(models.TransientModel):
@@ -40,6 +47,38 @@ class AccountPartnerLedger(models.TransientModel):
     with_init_balance = fields.Boolean('With Initial Balance at Start Date of reconcilled entries', default=False)
     sum_partner_top = fields.Boolean('Sum partner on Top', default=False)
     sum_partner_bottom = fields.Boolean('Sum partner on Bottom', default=True)
+
+    def _get_periode_date(self):
+        lang_code = self.env.user.lang or 'en_US'
+        date_format = self.env['res.lang']._lang_get(lang_code).date_format
+
+        today_year = fields.datetime.now().year
+
+        last_day = self.env.user.company_id.fiscalyear_last_day or 31
+        last_month = self.env.user.company_id.fiscalyear_last_month or 12
+        periode_obj = self.env['account.report.partner.ledger.periode']
+        periode_obj.search([]).unlink()
+        periode_ids = periode_obj
+        for year in range(today_year, today_year - 4, -1):
+            date_from = datetime(year - 1, last_month, last_day) + timedelta(days=1)
+            date_to = datetime(year, last_month, last_day)
+            user_periode  = "%s - %s" % (date_from.strftime(date_format),
+                                        date_to.strftime(date_format),
+                                        )
+            vals = {
+                    'name':user_periode,
+                    'date_from': date_from.strftime(DEFAULT_SERVER_DATE_FORMAT),
+                    'date_to': date_to.strftime(DEFAULT_SERVER_DATE_FORMAT),}
+            periode_ids += periode_obj.create(vals)
+        return False
+
+    periode_date = fields.Many2one('account.report.partner.ledger.periode', 'Periode', default=_get_periode_date, help="Auto complete Start and End date.")
+
+    @api.onchange('periode_date')
+    def on_change_periode_date(self):
+        if self.periode_date:
+            self.date_from = self.periode_date.date_from
+            self.date_to = self.periode_date.date_to
 
     @api.onchange('date_to')
     def onchange_date_to(self):
