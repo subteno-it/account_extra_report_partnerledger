@@ -305,7 +305,7 @@ class ReportPartnerLedger(models.AbstractModel):
             reconcile_clause = ' AND account_move_line.reconciled = false '
 
         # when an entrie a matching number and this matching number is linked with
-        # entries witch the date is gretter than date_to, else
+        # entries witch the date is gretter than date_to, then
         # the entrie is considered like unreconciled.
         if data['form']['rem_futur_reconciled'] and data['form']['date_to']:
             date_to = datetime.strptime(data['form']['date_to'], DEFAULT_SERVER_DATE_FORMAT)
