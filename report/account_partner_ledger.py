@@ -13,7 +13,7 @@ class ReportPartnerLedger(models.AbstractModel):
     def _generate_sql(self, data, accounts, date_to=False):
         date_clause = ''
         if date_to:
-            date_clause += ' AND "account_move_line"."date" <= ' + "'" + str(date_to) + "'" + ' '
+            date_clause += ' AND account_move_line.date <= ' + "'" + str(date_to) + "'" + ' '
 
         # clear used_context date if not it is use during the sql query
         data['form']['used_context']['date_to'] = False
@@ -29,23 +29,41 @@ class ReportPartnerLedger(models.AbstractModel):
                 partner_ids = "(%s)" % (partner_ids[0])
             else:
                 partner_ids = tuple(partner_ids)
-            partner_clause = ' AND "account_move_line".partner_id IN ' + str(partner_ids) + ' '
+            partner_clause = ' AND account_move_line.partner_id IN ' + str(partner_ids) + ' '
         else:
-            partner_clause = ' AND "account_move_line".partner_id IS NOT NULL '
+            partner_clause = ' AND account_move_line.partner_id IS NOT NULL '
 
         query = """
-            SELECT "account_move_line".id, "account_move_line".date, "account_move_line".date_maturity, j.code, acc.code as a_code, acc.name as a_name, "account_move_line".ref, m.name as move_name, "account_move_line".name, "account_move_line".debit, "account_move_line".credit, "account_move_line".amount_currency,"account_move_line".currency_id, c.symbol AS currency_code, afr.name as "matching_number", afr_id.id as "matching_number_id", "account_move_line".partner_id, "account_move_line".account_id
+            SELECT
+                account_move_line.id,
+                account_move_line.date,
+                account_move_line.date_maturity,
+                j.code,
+                acc.code AS a_code,
+                acc.name AS a_name,
+                account_move_line.ref,
+                m.name as move_name,
+                account_move_line.name,
+                account_move_line.debit,
+                account_move_line.credit,
+                account_move_line.amount_currency,
+                account_move_line.currency_id,
+                c.symbol AS currency_code,
+                afr.name AS matching_number,
+                afr_id.id AS matching_number_id,
+                account_move_line.partner_id,
+                account_move_line.account_id
             FROM """ + query_get_data[0] + """
-            LEFT JOIN account_journal j ON ("account_move_line".journal_id = j.id)
-            LEFT JOIN account_account acc ON ("account_move_line".account_id = acc.id)
-            LEFT JOIN res_currency c ON ("account_move_line".currency_id=c.id)
-            LEFT JOIN account_move m ON (m.id="account_move_line".move_id)
-            LEFT JOIN account_full_reconcile afr ON (afr.id="account_move_line".full_reconcile_id)
-            LEFT JOIN account_full_reconcile afr_id ON (afr_id.id="account_move_line".full_reconcile_id)
+                LEFT JOIN account_journal j ON (account_move_line.journal_id = j.id)
+                LEFT JOIN account_account acc ON (account_move_line.account_id = acc.id)
+                LEFT JOIN res_currency c ON (account_move_line.currency_id=c.id)
+                LEFT JOIN account_move m ON (m.id=account_move_line.move_id)
+                LEFT JOIN account_full_reconcile afr ON (afr.id=account_move_line.full_reconcile_id)
+                LEFT JOIN account_full_reconcile afr_id ON (afr_id.id=account_move_line.full_reconcile_id)
             WHERE
                 m.state IN %s
-                AND "account_move_line".account_id IN %s AND """ + query_get_data[1] + reconcile_clause + partner_clause + date_clause + """
-                ORDER BY "account_move_line".date"""
+                AND account_move_line.account_id IN %s AND """ + query_get_data[1] + reconcile_clause + partner_clause + date_clause + """
+                ORDER BY account_move_line.date"""
         self.env.cr.execute(query, tuple(params))
         return self.env.cr.dictfetchall()
 
@@ -110,7 +128,6 @@ class ReportPartnerLedger(models.AbstractModel):
         date_to = data['form']['used_context']['date_to']
         date_from_dt = datetime.strptime(date_from, DEFAULT_SERVER_DATE_FORMAT) if date_from else False
         date_to_dt = datetime.strptime(date_to, DEFAULT_SERVER_DATE_FORMAT) if date_to else False
-
         res = self._generate_sql(data, accounts, date_to=date_to)
 
         line_partner = {}
@@ -285,7 +302,7 @@ class ReportPartnerLedger(models.AbstractModel):
         list_match_in_futur = []
 
         if not data['form']['reconciled']:
-            reconcile_clause = ' AND "account_move_line".reconciled = false '
+            reconcile_clause = ' AND account_move_line.reconciled = false '
 
         # when an entrie a matching number and this matching number is linked with
         # entries witch the date is gretter than date_to, else
@@ -294,20 +311,28 @@ class ReportPartnerLedger(models.AbstractModel):
             date_to = datetime.strptime(data['form']['date_to'], DEFAULT_SERVER_DATE_FORMAT)
             acc_ful_obj = self.env['account.full.reconcile']
 
-            for full_rec in acc_ful_obj.search([]):
-                in_futur = False
-                for date in full_rec.reconciled_line_ids.mapped('date_maturity'):
-                    date_move = datetime.strptime(date, DEFAULT_SERVER_DATE_FORMAT)
-                    if date_move > date_to:
-                        in_futur = True
-                        break
-                if in_futur:
-                    list_match_in_futur.append(full_rec.id)
+            params = [date_to]
+            query = """
+            SELECT id
+            FROM account_full_reconcile
+            WHERE
+                EXISTS
+                        (
+                    	SELECT id
+                        FROM account_move_line
+                        WHERE account_move_line.full_reconcile_id = account_full_reconcile.id
+                        	AND account_move_line.date > %s
+    	                ); """
+            self.env.cr.execute(query, params)
+            res =  self.env.cr.dictfetchall()
+            for r in res:
+                list_match_in_futur.append(r['id'])
+
             if list_match_in_futur and not data['form']['reconciled']:
                 if len(list_match_in_futur) == 1:
                     list_match_in_futur_sql = "(%s)" %(list_match_in_futur[0])
                 else:
                     list_match_in_futur_sql = str(tuple(list_match_in_futur))
-                reconcile_clause = ' AND ("account_move_line".full_reconcile_id IS NULL OR "account_move_line".full_reconcile_id IN ' + list_match_in_futur_sql + ')'
+                reconcile_clause = ' AND (account_move_line.full_reconcile_id IS NULL OR account_move_line.full_reconcile_id IN ' + list_match_in_futur_sql + ')'
 
         return reconcile_clause, list_match_in_futur

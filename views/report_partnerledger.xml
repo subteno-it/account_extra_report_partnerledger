@@ -14,8 +14,8 @@
                             <p t-esc="res_company.name"/>
                         </div>
                         <div class="col-xs-3">
-                            <t t-if="data['form']['date_from']"><strong>Date from :</strong> <span t-esc="data['form']['date_from']"/><br/></t>
-                            <t t-if="data['form']['date_to']"><strong>Date to :</strong> <span t-esc="data['form']['date_to']"/></t>
+                            <t t-if="data['form']['date_from']"><strong>Start Date :</strong> <span t-esc="data['form']['date_from']"/><br/></t>
+                            <t t-if="data['form']['date_to']"><strong>End Date :</strong> <span t-esc="data['form']['date_to']"/></t>
                             <p t-if="data['form']['with_init_balance']">With Initial Balance.</p>
                         </div>
                         <div class="col-xs-3">
@@ -24,9 +24,9 @@
                             <p t-if="data['form']['target_move'] == 'posted'">All Posted Entries</p>
                         </div>
                         <div class="col-xs-3">
-                            <strong>Matching:</strong>
-                            <p t-if="data['form']['reconciled']">With Reconciled Entries</p>
-                            <p t-if="data['form']['rem_futur_reconciled']">Reconciled Entries at End Date.</p>
+                            <strong t-if="data['form']['reconciled']">With Reconciled Entries</strong>
+                            <strong t-if="data['form']['reconciled'] == False">Only UnReconciled Entries</strong>
+                            <p t-if="data['form']['rem_futur_reconciled']">With entries matched with other entries dated after End Date.</p>
                         </div>
                     </div>
                     <table class="table table-condensed">

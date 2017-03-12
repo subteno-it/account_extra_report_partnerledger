@@ -41,7 +41,7 @@ class AccountPartnerLedger(models.TransientModel):
 
     amount_currency = fields.Boolean("With Currency", help="It adds the currency column on report if the currency differs from the company currency.")
     reconciled = fields.Boolean('With Reconciled Entries')
-    rem_futur_reconciled = fields.Boolean('Reconciled Entries at End Date.', default=False, help="Reconciled Entries matched with futur is considered like unreconciled. Matching number in futur is replace by *.")
+    rem_futur_reconciled = fields.Boolean('With entries matched with other entries dated after End Date.', default=False, help="Reconciled Entries matched with futur is considered like unreconciled. Matching number in futur is replace by *.")
     partner_ids = fields.Many2many(comodel_name='res.partner', string='Partners', domain=['|', ('is_company', '=', True), ('parent_id', '=', False)], help='If empty, get all partners')
     account_exclude_ids = fields.Many2many(comodel_name='account.account', string='Accounts to exclude', domain=[('internal_type', 'in', ('receivable', 'payable'))], help='If empty, get all accounts')
     with_init_balance = fields.Boolean('With Initial Balance at Start Date of reconcilled entries', default=False)
