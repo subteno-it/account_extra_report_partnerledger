@@ -313,16 +313,11 @@ class ReportPartnerLedger(models.AbstractModel):
 
             params = [date_to]
             query = """
-            SELECT id
-            FROM account_full_reconcile
-            WHERE
-                EXISTS
-                        (
-                    	SELECT id
-                        FROM account_move_line
-                        WHERE account_move_line.full_reconcile_id = account_full_reconcile.id
-                        	AND account_move_line.date > %s
-    	                ); """
+            SELECT DISTINCT afr.id
+            FROM account_full_reconcile afr
+            INNER JOIN account_move_line aml ON aml.full_reconcile_id=afr.id
+            AND aml.date > %s
+            """
             self.env.cr.execute(query, params)
             res =  self.env.cr.dictfetchall()
             for r in res:
