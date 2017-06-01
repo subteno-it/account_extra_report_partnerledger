@@ -316,7 +316,7 @@ class ReportPartnerLedger(models.AbstractModel):
             SELECT DISTINCT afr.id
             FROM account_full_reconcile afr
             INNER JOIN account_move_line aml ON aml.full_reconcile_id=afr.id
-            AND aml.date > %s
+            AND aml.date >= %s
             """
             self.env.cr.execute(query, params)
             res =  self.env.cr.dictfetchall()
